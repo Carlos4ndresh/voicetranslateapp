@@ -1,0 +1,14 @@
+lambda/java-project/.classpath
+lambda/java-project/.project
+lambda/java-project/.settings/org.eclipse.jdt.apt.core.prefs
+lambda/java-project/.settings/org.eclipse.jdt.core.prefs
+lambda/java-project/.settings/org.eclipse.m2e.core.prefs
+lambda/java-project/target/classes/app/babelfish/Input.class
+lambda/java-project/target/classes/app/babelfish/LambdaHandler.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/AudioStreamPublisher.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/ByteToAudioEventSubscription.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/StreamTranscriptionBehavior.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeStreamingClientWrapper.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeStreamingClientWrapper$AudioStreamPublisher.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeStreamingRetryClient.class
+lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeStreamingSynchronousClient.class
