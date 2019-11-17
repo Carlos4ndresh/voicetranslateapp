@@ -18,6 +18,9 @@ div.app {
 	color:#80797C;
 }
 
+.clickableimage {
+	display: inline-block;
+}
 
 .clickableimage:hover {
     cursor: pointer;

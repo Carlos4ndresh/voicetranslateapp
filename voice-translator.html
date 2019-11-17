@@ -6,7 +6,6 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/css/babel-fish.css">
   <link href="https://fonts.googleapis.com/css?family=Allerta+Stencil" rel="stylesheet">
   <title>A handy online translator</title>  
 </head>
@@ -23,11 +22,11 @@
       <div class="col-xl"></div>
     </div>
     <div class="row">
-      <div class="col-md"><div class="flags"><img id="source_en" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/en2.png" height="100" onclick="babel_unselect_source(); babel_select('source','en');"><br/>US English</div></div>
-      <div class="col-md"><div class="flags"><img id="source_gb" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/gb.png" height="100" onclick="babel_unselect_source(); babel_select('source','gb');"><br/>British English</div></div>
-      <div class="col-md"><div class="flags"><img id="source_es" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/es.png" height="100" onclick="babel_unselect_source(); babel_select('source','es');"><br/>Spanish</div></div>
-      <div class="col-md"><div class="flags"><img id="source_ca" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/ca.png" height="100" onclick="babel_unselect_source(); babel_select('source','ca');"><br/>Canadian French</div></div>
-      <div class="col-md"><div class="flags"><img id="source_fr" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/fr.png" height="100" onclick="babel_unselect_source(); babel_select('source','fr');"><br/>French</div></div>
+      <div class="col-md"><div class="flags"><img id="source_en" class='clickableimage' src="./graphics/flags/en2.png" height="100" onclick="babel_unselect_source(); babel_select('source','en');"><br/>US English</div></div>
+      <div class="col-md"><div class="flags"><img id="source_gb" class='clickableimage' src="./graphics/flags/gb.png" height="100" onclick="babel_unselect_source(); babel_select('source','gb');"><br/>British English</div></div>
+      <div class="col-md"><div class="flags"><img id="source_es" class='clickableimage' src="./graphics/flags/es.png" height="100" onclick="babel_unselect_source(); babel_select('source','es');"><br/>Spanish</div></div>
+      <div class="col-md"><div class="flags"><img id="source_ca" class='clickableimage' src="./graphics/flags/ca.png" height="100" onclick="babel_unselect_source(); babel_select('source','ca');"><br/>Canadian French</div></div>
+      <div class="col-md"><div class="flags"><img id="source_fr" class='clickableimage' src="./graphics/flags/fr.png" height="100" onclick="babel_unselect_source(); babel_select('source','fr');"><br/>French</div></div>
     </div>
     <div class="row">
       <div class="col-xl"><h4>Select Target Language</h4></div>
@@ -36,67 +35,90 @@
     <div class="row">
       <div class="col-sm">
         <div class="flags">
-          <img id="target_en" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/en.png" height="100" onclick="babel_unselect_target(); babel_select('target','en');"><br/>US <br/>English
+          <img id="target_en" class='clickableimage' src="./graphics/flags/en.png" height="100" onclick="babel_unselect_target(); babel_select('target','en');"><br/>US English
         </div>
       </div>
       <div class="col-sm">
         <div class="flags">
-          <img id="target_gb" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/gb.png" height="100" onclick="babel_unselect_target(); babel_select('target','gb');"><br/>British <br/>English
+          <img id="target_gb" class='clickableimage' src="./graphics/flags/gb.png" height="100" onclick="babel_unselect_target(); babel_select('target','gb');"><br/>British English
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_de" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/de.png" height="100" onclick="babel_unselect_target(); babel_select('target','de');"><br/>German<br/>&nbsp;
+        <div class="flags"><img id="target_de" class='clickableimage' src="./graphics/flags/de.png" height="100" onclick="babel_unselect_target(); babel_select('target','de');"><br/>German
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_pl" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/pl.png" height="100" onclick="babel_unselect_target(); babel_select('target','pl');"><br/>Polish<br/>&nbsp;
+        <div class="flags"><img id="target_pl" class='clickableimage' src="./graphics/flags/pl.png" height="100" onclick="babel_unselect_target(); babel_select('target','pl');"><br/>Polish
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_es" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/es2.png" height="100" onclick="babel_unselect_target(); babel_select('target','es');"><br/>US </br>Spanish
+        <div class="flags"><img id="target_es" class='clickableimage' src="./graphics/flags/es2.png" height="100" onclick="babel_unselect_target(); babel_select('target','es');"><br/>US Spanish
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_ca" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/ca.png" height="100" onclick="babel_unselect_target(); babel_select('target','ca');"><br/>Canadian<br/>French
+        <div class="flags"><img id="target_ca" class='clickableimage' src="./graphics/flags/ca.png" height="100" onclick="babel_unselect_target(); babel_select('target','ca');"><br/>Canadian French
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_fr" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/fr.png" height="100" onclick="babel_unselect_target(); babel_select('target','fr');"><br/>French<br/>&nbsp;
+        <div class="flags"><img id="target_fr" class='clickableimage' src="./graphics/flags/fr.png" height="100" onclick="babel_unselect_target(); babel_select('target','fr');"><br/>French
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_ja" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/ja.png" height="100" onclick="babel_unselect_target(); babel_select('target','ja');"><br/>Japanese<br/>&nbsp;
+        <div class="flags"><img id="target_ja" class='clickableimage' src="./graphics/flags/ja.png" height="100" onclick="babel_unselect_target(); babel_select('target','ja');"><br/>Japanese
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_ru" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/ru.png" height="100" onclick="babel_unselect_target(); babel_select('target','ru');"><br/>Russian<br/>&nbsp;
+        <div class="flags"><img id="target_ru" class='clickableimage' src="./graphics/flags/ru.png" height="100" onclick="babel_unselect_target(); babel_select('target','ru');"><br/>Russian
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_it" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/it.png" height="100" onclick="babel_unselect_target(); babel_select('target','it');"><br/>Italian<br/>&nbsp;
+        <div class="flags"><img id="target_it" class='clickableimage' src="./graphics/flags/it.png" height="100" onclick="babel_unselect_target(); babel_select('target','it');"><br/>Italian
         </div>
       </div>
       <div class="col-sm">
-        <div class="flags"><img id="target_sv" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/flags/sv.png" height="100" onclick="babel_unselect_target(); babel_select('target','sv');"><br/>Swedish<br/>&nbsp;
+        <div class="flags"><img id="target_sv" class='clickableimage' src="./graphics/flags/sv.png" height="100" onclick="babel_unselect_target(); babel_select('target','sv');"><br/>Swedish
         </div>
       </div>
     </div>
   </div>
+  
 
-
-  <div class="row align-items-center">
-    
-    <div class="col">
-      <div id="babel_button" style="border-block: 5px;">
-        <img id="start_button" class='clickableimage' src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/start.png" height="50" onclick="babel_start();">
-        <img id="stop_button" src="https://s3.amazonaws.com/tomash-us-east-1/voice-translator/graphics/stop2.png" height="50" onclick="babel_stop();">
-      </div>
+  <div class="container-fluid">
+    <div class="row">
+      <br>
     </div>
+    <div class="row">  
+        <div class="col-sm-3">
+          <img id="start_button" class='clickableimage' src="./graphics/start.png" height="50" onclick="babel_start();">
+        </div>
+        <div class="col-sm-3">
+          <img id="stop_button" src="./graphics/stop2.png" height="50" onclick="babel_stop();">
+        </div>
+    </div>     
   </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <br>
+    </div>
+    <div class="row">
+      <div class="col-md-12" style="border-top: 1cm;">
+        <span id="processing" style="display: none;"><h3 class="alert alert-info" role="alert">Processing...</h3></span>        
+      </div>      
+    </div>  
+    <div class="row">
+      <br>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div id="audio-output"></div>        
+      </div>
+    </div>    
+  </div>
+
+  
     
 
-  <span id="processing" style="display: none;">Processing...</span>
-  <div id="audio-output"></div>
   
   <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
   <script src="voice-translator-config.js"></script>
