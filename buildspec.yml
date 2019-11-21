@@ -2,7 +2,11 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      runtime: 
-        python: 3.7 
+      runtime:
+        java: openjdk11
+  build:
     commands:
-      - echo '================== holowo ==================='
+      - jar -cvf lambda/voice-translator-lambda.jar lambda/java-project/src/main/java/app/babelfish/LambdaHandler.java
+  post_build:
+    commands:
+      - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
