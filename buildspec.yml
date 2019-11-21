@@ -10,3 +10,5 @@ phases:
   post_build:
     commands:
       - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
+      - aws s3 cp cloudformation/voice-translator.yaml s3://voice-translator-lambda/cloudformation/voice-translator.yaml
+      - aws cloudformation update-stack --stack-name voice --template-url https://voice-translator-lambda.s3.us-east-2.amazonaws.com/cloudformation/voice-translator.yaml
