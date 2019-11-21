@@ -17,10 +17,10 @@ function babel_select(mode, language) {
 
 function babel_unselect_source() {
   document.getElementById("source_en").src = "./graphics/flags/en.png";
-  document.getElementById("source_gb").src = "./graphics/flags/gb.png";
+  // document.getElementById("source_gb").src = "./graphics/flags/gb.png";
   document.getElementById("source_es").src = "./graphics/flags/es.png";
-  document.getElementById("source_ca").src = "./graphics/flags/ca.png";
-  document.getElementById("source_fr").src = "./graphics/flags/fr.png";
+  // document.getElementById("source_ca").src = "./graphics/flags/ca.png";
+  // document.getElementById("source_fr").src = "./graphics/flags/fr.png";
 }
 
 function babel_unselect_target() {
@@ -123,7 +123,7 @@ function poll(fn, timeout, interval) {
 
   return new Promise(checkCondition);
 }
-
+//TODO Change the function for showing the transcript value instead of processing AFTER executing lamdba function
 // Adjust buttons and message for processing
 function processingView() {
   // Show processing message

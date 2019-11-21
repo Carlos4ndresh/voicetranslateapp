@@ -1,7 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Resources:
+Parameters:
+  CodeBucket:
+    Type: String
+    Default: voice-translatorbucket
+    Description: "The bucket where lambda jars are located"
 
+Resources:
   VoiceTranslatorBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -10,23 +15,26 @@ Resources:
         IndexDocument: voice-translator.html
       CorsConfiguration:
         CorsRules:
-        - AllowedHeaders: ['*']
-          AllowedMethods: [GET,PUT,POST,HEAD]
-          AllowedOrigins: ['*']
-          Id: myCORSRuleId1
-          MaxAge: '3600'
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, PUT, POST, HEAD]
+            AllowedOrigins: ["*"]
+            Id: myCORSRuleId1
+            MaxAge: "3600"
 
   VoiceTranslatorBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref 'VoiceTranslatorBucket'
+      Bucket: !Ref "VoiceTranslatorBucket"
       PolicyDocument:
         Statement:
-        - Action: ['s3:GetObject']
-          Effect: Allow
-          Principal: "*"
-          Resource:
-          - !Join ['', ['arn:aws:s3:::', !Ref 'VoiceTranslatorBucket', '/*']]
+          - Action: ["s3:GetObject"]
+            Effect: Allow
+            Principal: "*"
+            Resource:
+              - !Join [
+                  "",
+                  ["arn:aws:s3:::", !Ref "VoiceTranslatorBucket", "/*"],
+                ]
 
   VoiceTranslatorLambda:
     Type: "AWS::Lambda::Function"
@@ -34,7 +42,7 @@ Resources:
       Handler: "app.babelfish.LambdaHandler::handleRequest"
       Role: !GetAtt VoiceTranslatorLambdaRole.Arn
       Code:
-        S3Bucket: "tomash-us-east-1"
+        S3Bucket: !Ref CodeBucket
         S3Key: "voice-translator/lambda/voice-translator-lambda.jar"
       Runtime: "java8"
       MemorySize: 1024
@@ -42,37 +50,37 @@ Resources:
 
   CfDistribution:
     Metadata:
-      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+      Comment: "CloudFront distribution over Voice Translator App - to enable HTTPS"
     Properties:
       DistributionConfig:
-        Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+        Comment: "CloudFront distribution over Voice Translator App - to enable HTTPS"
         DefaultCacheBehavior:
           AllowedMethods:
-            - 'HEAD'
-            - 'GET'
+            - "HEAD"
+            - "GET"
           CachedMethods:
-            - 'HEAD'
-            - 'GET'
+            - "HEAD"
+            - "GET"
           Compress: false
           ForwardedValues:
             Cookies:
-              Forward: 'none'
+              Forward: "none"
             Headers:
-              - 'Origin'
+              - "Origin"
             QueryString: false
           DefaultTTL: 0
-          TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
-          ViewerProtocolPolicy: 'redirect-to-https'
-        DefaultRootObject: 'index.html'
+          TargetOriginId: !Sub "s3-origin-${VoiceTranslatorBucket}"
+          ViewerProtocolPolicy: "redirect-to-https"
+        DefaultRootObject: "index.html"
         Enabled: true
-        HttpVersion: 'http1.1'
+        HttpVersion: "http1.1"
         IPV6Enabled: false
         Origins:
           - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
-            Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
+            Id: !Sub "s3-origin-${VoiceTranslatorBucket}"
             S3OriginConfig: {}
-        PriceClass: 'PriceClass_All'
-    Type: 'AWS::CloudFront::Distribution'
+        PriceClass: "PriceClass_All"
+    Type: "AWS::CloudFront::Distribution"
 
   VoiceTranslatorLambdaRole:
     Type: "AWS::IAM::Role"
@@ -97,8 +105,7 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              -
-                Effect: "Allow"
+              - Effect: "Allow"
                 Action:
                   - "logs:CreateLogGroup"
                   - "logs:CreateLogStream"
@@ -140,9 +147,8 @@ Resources:
                 Resource:
                   Fn::Join:
                     - ""
-                    -
-                      - "arn:aws:s3:::"
-                      -  Ref: "VoiceTranslatorBucket"
+                    - - "arn:aws:s3:::"
+                      - Ref: "VoiceTranslatorBucket"
                       - "/*"
         - PolicyName: S3LocationAccess
           PolicyDocument:
@@ -153,12 +159,10 @@ Resources:
                   - "s3:GetBucketLocation"
                 Resource: "arn:aws:s3:::*"
 
-
   CognitoIdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
       AllowUnauthenticatedIdentities: True
-
 
   IdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
@@ -194,15 +198,22 @@ Resources:
                 Resource:
                   Fn::Join:
                     - ""
-                    -
-                      - "arn:aws:s3:::"
-                      -  Ref: "VoiceTranslatorBucket"
+                    - - "arn:aws:s3:::"
+                      - Ref: "VoiceTranslatorBucket"
                       - "/*"
 
 Outputs:
   VoiceTranslatorLink:
-    Description: 'Domain name for our cloudfront distribution'
-    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+    Description: "Domain name for our cloudfront distribution"
+    Value:
+      !Join [
+        "",
+        [
+          "https://",
+          !GetAtt CfDistribution.DomainName,
+          "/voice-translator.html",
+        ],
+      ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket

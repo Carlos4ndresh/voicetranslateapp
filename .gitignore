@@ -14,3 +14,4 @@ lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeS
 lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeStreamingSynchronousClient.class
 .prettierrc
 .vscode
+/lambda/java-project/target
