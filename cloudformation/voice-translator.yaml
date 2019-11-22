@@ -62,10 +62,10 @@ Resources:
       Domain: vpc
 
   #create an elastic IP for vpc
-  VoiceTranslatorEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
+  #VoiceTranslatorEIP2:
+  #  Type: AWS::EC2::EIP
+  #  Properties:
+  #    Domain: vpc
 
   #create subnets public
   VoiceTranslatorSubnetPub:
@@ -595,6 +595,7 @@ Resources:
             - Action:
                 - iam:GetRole
                 - cloudfront:CreateDistribution
+                - ec2:*
               Resource: "*"
               Effect: Allow
   VoiceTranslatorCodebuildInstanceProfile:
