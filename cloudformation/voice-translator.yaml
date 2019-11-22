@@ -525,6 +525,15 @@ Resources:
                             - 'subnet/' 
                             - !Ref VoiceTranslatorSubnetPriv
                     ec2:AuthorizedService: codebuild.amazonaws.com
+        - PolicyName: "CFCodeBuildManagedSecretPolicyParkingBack"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: 
+                  - "kms:Decrypt"
+                  - "ssm:GetParameters"
+                Resource: "*"
         - PolicyName: "CFCodeBuildBasePolicyParkingBack"
           PolicyDocument:
             Version: '2012-10-17'
