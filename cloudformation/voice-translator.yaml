@@ -674,7 +674,8 @@ Resources:
             Branch: infrastructure_pipeline
             PollForSourceChanges: 'False'
             Repo: voicetranslateapp
-            OAuthToken: '876f19d42f4e34682270e31ddd7809331f612674'
+            #removed for security!!! be more careful!!!
+            OAuthToken: ''
           InputArtifacts: []
           OutputArtifacts: 
           - Name: SourceArtifact
