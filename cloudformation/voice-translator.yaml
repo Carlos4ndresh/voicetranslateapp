@@ -444,6 +444,10 @@ Resources:
                 - ecr:DescribeImages
               Resource: "*"
               Effect: Allow
+            - Action:
+                - iam:GetRole
+              Resource: "*"
+              Effect: Allow
       #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
   VoiceTranslatorCodePipelineInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -563,7 +567,11 @@ Resources:
                 - s3:GetObject
                 - s3:GetObjectVersion
                 - s3:Get*
-      #RoleName: "CFCodebuildParkingRampUpBackServiceRole"
+            - Effect: Allow
+              Resource:
+                - "*"
+              Action:
+                - "cloudformation:*"
   VoiceTranslatorCodebuildInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -670,13 +678,13 @@ Resources:
             Branch: infrastructure_pipeline
             PollForSourceChanges: 'False'
             Repo: voicetranslateapp
-            OAuthToken: 'ac76d16264c42360ab6e5a174baf35b1649b2e30'
+            OAuthToken: '{{resolve:ssm-secure:GitHubPersonalToken:1}}'
           InputArtifacts: []
           OutputArtifacts: 
           - Name: SourceArtifact
           Region: !Ref AWS::Region
           RunOrder: 1
-      - Name: Build
+      - Name: Build + Deploy
         Actions:
         - Name: Build
           ActionTypeId:
