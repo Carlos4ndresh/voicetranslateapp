@@ -2,8 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      runtime:
-        java: openjdk11
+      java: openjdk11
   build:
     commands:
       - jar -cvf lambda/voice-translator-lambda.jar lambda/java-project/src/main/java/app/babelfish/LambdaHandler.java
