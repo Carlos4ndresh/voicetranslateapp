@@ -15,3 +15,7 @@ lambda/java-project/target/classes/com/amazonaws/transcribestreaming/TranscribeS
 .prettierrc
 .vscode
 /lambda/java-project/target
+/lambda/voice-transcribe-lambda/voice-transcribe-lambda/target
+/lambda/voice-transcribe-lambda/voice-transcribe-lambda/.classpath
+/lambda/voice-transcribe-lambda/voice-transcribe-lambda/.project
+/lambda/voice-transcribe-lambda/voice-transcribe-lambda/.settings
