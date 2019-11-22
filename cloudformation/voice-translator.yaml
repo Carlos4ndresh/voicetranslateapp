@@ -588,6 +588,7 @@ Resources:
                 - "cloudformation:UpdateStack"
             - Action:
                 - iam:GetRole
+                - cloudfront:CreateDistribution
               Resource: "*"
               Effect: Allow
   VoiceTranslatorCodebuildInstanceProfile:
@@ -670,7 +671,9 @@ Resources:
         Subnets: 
           - !Ref VoiceTranslatorSubnetPriv
         VpcId: !Ref VoiceTranslatorVPC
-    DependsOn: VoiceTranslatorLambda
+    DependsOn: 
+      - VoiceTranslatorLambda
+      - CfDistribution
 
   #Pipeline
   VoiceTranslatorCodePipeline:
