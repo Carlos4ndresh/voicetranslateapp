@@ -444,6 +444,10 @@ Resources:
                 - ecr:DescribeImages
               Resource: "*"
               Effect: Allow
+            - Action:
+                - iam:GetRole
+              Resource: "*"
+              Effect: Allow
       #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
   VoiceTranslatorCodePipelineInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -674,13 +678,13 @@ Resources:
             Branch: infrastructure_pipeline
             PollForSourceChanges: 'False'
             Repo: voicetranslateapp
-            OAuthToken: '876f19d42f4e34682270e31ddd7809331f612674'
+            OAuthToken: '{{resolve:ssm-secure:GitHubPersonalToken:1}}'
           InputArtifacts: []
           OutputArtifacts: 
           - Name: SourceArtifact
           Region: !Ref AWS::Region
           RunOrder: 1
-      - Name: Build_Deploy
+      - Name: Build + Deploy
         Actions:
         - Name: Build
           ActionTypeId:
