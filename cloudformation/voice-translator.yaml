@@ -2,6 +2,136 @@ AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
 
+  #███╗   ██╗███████╗████████╗██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗███████╗
+  #████╗  ██║██╔════╝╚══██╔══╝██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝
+  #██╔██╗ ██║█████╗     ██║   ██║ █╗ ██║██║   ██║██████╔╝█████╔╝ ███████╗
+  #██║╚██╗██║██╔══╝     ██║   ██║███╗██║██║   ██║██╔══██╗██╔═██╗ ╚════██║
+  #██║ ╚████║███████╗   ██║   ╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗███████║
+  #╚═╝  ╚═══╝╚══════╝   ╚═╝    ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
+                                                     
+  #create vpc
+  VoiceTranslatorVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      InstanceTenancy: default
+      Tags:
+        - Key: owner
+          Value: dacevedo
+        - Key: Name
+          Value: VoiceTranslatorVPC
+
+  #create internet gateway
+  VoiceTranslatorInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: owner
+          Value: dacevedo
+        - Key: Name
+          Value: VoiceTranslatorInternetGateway
+
+  #create nat gateway
+  VoiceTranslatorNatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties: 
+      AllocationId: !GetAtt VoiceTranslatorEIP.AllocationId
+      SubnetId: !Ref VoiceTranslatorSubnetPub
+      Tags: 
+        - Key: Name
+          Value: VoiceTranslatorNatGateway
+
+  #attach internet gateway to vpc
+  VoiceTranslatorVPCINTGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VoiceTranslatorVPC
+      InternetGatewayId: !Ref VoiceTranslatorInternetGateway
+
+  #create an elastic IP for vpc
+  VoiceTranslatorEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  #create subnets public
+  VoiceTranslatorSubnetPub:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2a
+      VpcId: !Ref VoiceTranslatorVPC
+      CidrBlock: 10.1.1.0/24
+      MapPublicIpOnLaunch: 'true'
+      Tags:
+        - Key: owner
+          Value: dacevedo
+        - Key: Name
+          Value: VoiceTranslatorSubnetPub
+
+  #create subnet private
+  VoiceTranslatorSubnetPriv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2b
+      VpcId: !Ref VoiceTranslatorVPC
+      CidrBlock: 10.1.2.0/24
+      MapPublicIpOnLaunch: 'false'
+      Tags:
+        - Key: Name
+          Value: VoiceTranslatorSubnetPriv
+
+  #create route table public
+  VoiceTranslatorRouteTablePub:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VoiceTranslatorVPC
+      Tags:
+        - Key: owner
+          Value: dacevedo
+        - Key: Name
+          Value: VoiceTranslatorRouteTablePub
+  VoiceTranslatorInternetRoutePub:
+    Type: AWS::EC2::Route
+    DependsOn: VoiceTranslatorVPCINTGatewayAttachment
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VoiceTranslatorInternetGateway
+      RouteTableId: !Ref VoiceTranslatorRouteTablePub
+
+  #create route table private
+  VoiceTranslatorRouteTablePriv:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VoiceTranslatorVPC
+      Tags:
+        - Key: owner
+          Value: voice
+        - Key: Name
+          Value: VoiceTranslatorRouteTablePriv
+  VoiceTranslatorInternetRoutePriv:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref VoiceTranslatorNatGateway
+      RouteTableId: !Ref VoiceTranslatorRouteTablePriv
+
+  #associate route tablet to subnet public
+  VoiceTranslatorSubnetPubRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref VoiceTranslatorRouteTablePub
+      SubnetId: !Ref VoiceTranslatorSubnetPub
+
+  #associate route tablet to subnet private
+  VoiceTranslatorSubnetPrivRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref VoiceTranslatorRouteTablePriv
+      SubnetId: !Ref VoiceTranslatorSubnetPriv
+
+  #####################################################################################################
   VoiceTranslatorBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -34,45 +164,45 @@ Resources:
       Handler: "app.babelfish.LambdaHandler::handleRequest"
       Role: !GetAtt VoiceTranslatorLambdaRole.Arn
       Code:
-        S3Bucket: "tomash-us-east-1"
+        S3Bucket: voice-translator-lambda
         S3Key: "voice-translator/lambda/voice-translator-lambda.jar"
       Runtime: "java8"
       MemorySize: 1024
       Timeout: 30
 
-  CfDistribution:
-    Metadata:
-      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-    Properties:
-      DistributionConfig:
-        Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - 'HEAD'
-            - 'GET'
-          CachedMethods:
-            - 'HEAD'
-            - 'GET'
-          Compress: false
-          ForwardedValues:
-            Cookies:
-              Forward: 'none'
-            Headers:
-              - 'Origin'
-            QueryString: false
-          DefaultTTL: 0
-          TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
-          ViewerProtocolPolicy: 'redirect-to-https'
-        DefaultRootObject: 'index.html'
-        Enabled: true
-        HttpVersion: 'http1.1'
-        IPV6Enabled: false
-        Origins:
-          - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
-            Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
-            S3OriginConfig: {}
-        PriceClass: 'PriceClass_All'
-    Type: 'AWS::CloudFront::Distribution'
+  #CfDistribution:
+  #  Metadata:
+  #    Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+  #  Properties:
+  #    DistributionConfig:
+  #      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+  #      DefaultCacheBehavior:
+  #        AllowedMethods:
+  #          - 'HEAD'
+  #          - 'GET'
+  #        CachedMethods:
+  #          - 'HEAD'
+  #          - 'GET'
+  #        Compress: false
+  #        ForwardedValues:
+  #          Cookies:
+  #            Forward: 'none'
+  #          Headers:
+  #            - 'Origin'
+  #          QueryString: false
+  #        DefaultTTL: 0
+  #        TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
+  #        ViewerProtocolPolicy: 'redirect-to-https'
+  #      DefaultRootObject: 'index.html'
+  #      Enabled: true
+  #      HttpVersion: 'http1.1'
+  #      IPV6Enabled: false
+  #      Origins:
+  #        - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
+  #          Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
+  #          S3OriginConfig: {}
+  #      PriceClass: 'PriceClass_All'
+  #  Type: 'AWS::CloudFront::Distribution'
 
   VoiceTranslatorLambdaRole:
     Type: "AWS::IAM::Role"
@@ -153,6 +283,416 @@ Resources:
                   - "s3:GetBucketLocation"
                 Resource: "arn:aws:s3:::*"
 
+  #Voice Translator start pipeline execution service role
+  VoiceTranslatorEventPipelineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com" 
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/service-role/"
+      Policies:
+        - PolicyName: "VoiceTranslatorStartPipelineExecution"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - codepipeline:StartPipelineExecution
+              Resource:
+                #- arn:aws:codepipeline:us-east-2:762537114155:parking-back-pipeline
+                - !Join
+                    - ''
+                    - - 'arn:aws:codepipeline:'
+                      - !Ref AWS::Region
+                      - ':'
+                      - !Ref AWS::AccountId
+                      - ':' 
+                      - !Ref VoiceTranslatorCodePipeline
+      #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
+  VoiceTranslatorPipelineExecutionInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "VoiceTranslatorEventPipelineRole"
+
+  #CodePipeline Service Role
+  VoiceTranslatorCodePipelineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "codepipeline.amazonaws.com" 
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/service-role/"
+      Policies:
+        - PolicyName: "VoiceTranslatorCodePipelineRole"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Action:
+              - iam:PassRole
+              Resource: "*"
+              Effect: Allow
+              Condition:
+                StringEqualsIfExists:
+                  iam:PassedToService:
+                    - cloudformation.amazonaws.com
+                    - elasticbeanstalk.amazonaws.com
+                    - ec2.amazonaws.com
+                    - ecs-tasks.amazonaws.com
+            - Action:
+                - codecommit:CancelUploadArchive
+                - codecommit:GetBranch
+                - codecommit:GetCommit
+                - codecommit:GetUploadArchiveStatus
+                - codecommit:UploadArchive
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - codedeploy:CreateDeployment
+                - codedeploy:GetApplication
+                - codedeploy:GetApplicationRevision
+                - codedeploy:GetDeployment
+                - codedeploy:GetDeploymentConfig
+                - codedeploy:RegisterApplicationRevision
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - elasticbeanstalk:*
+                - ec2:*
+                - elasticloadbalancing:*
+                - autoscaling:*
+                - cloudwatch:*
+                - s3:*
+                - sns:*
+                - cloudformation:*
+                - rds:*
+                - sqs:*
+                - ecs:*
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - lambda:InvokeFunction
+                - lambda:ListFunctions
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - opsworks:CreateDeployment
+                - opsworks:DescribeApps
+                - opsworks:DescribeCommands
+                - opsworks:DescribeDeployments
+                - opsworks:DescribeInstances
+                - opsworks:DescribeStacks
+                - opsworks:UpdateApp
+                - opsworks:UpdateStack
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - cloudformation:CreateStack
+                - cloudformation:DeleteStack
+                - cloudformation:DescribeStacks
+                - cloudformation:UpdateStack
+                - cloudformation:CreateChangeSet
+                - cloudformation:DeleteChangeSet
+                - cloudformation:DescribeChangeSet
+                - cloudformation:ExecuteChangeSet
+                - cloudformation:SetStackPolicy
+                - cloudformation:ValidateTemplate
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - codebuild:BatchGetBuilds
+                - codebuild:StartBuild
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - devicefarm:ListProjects
+                - devicefarm:ListDevicePools
+                - devicefarm:GetRun
+                - devicefarm:GetUpload
+                - devicefarm:CreateUpload
+                - devicefarm:ScheduleRun
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - servicecatalog:ListProvisioningArtifacts
+                - servicecatalog:CreateProvisioningArtifact
+                - servicecatalog:DescribeProvisioningArtifact
+                - servicecatalog:DeleteProvisioningArtifact
+                - servicecatalog:UpdateProduct
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - cloudformation:ValidateTemplate
+              Resource: "*"
+              Effect: Allow
+            - Action:
+                - ecr:DescribeImages
+              Resource: "*"
+              Effect: Allow
+      #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
+  VoiceTranslatorCodePipelineInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "VoiceTranslatorCodePipelineRole"
+  
+  ###########################################################################################################################3
+  ############################################################################################################################3
+  # parking back CodeBuild Service Role
+  VoiceTranslatorCodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com" 
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/service-role/"
+      Policies:
+        - PolicyName: "CFCodeBuildVpcPolicyParkingBack"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: 
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeDhcpOptions"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                  - "ec2:DescribeSubnets"
+                  - "ec2:DescribeSecurityGroups"
+                  - "ec2:DescribeVpcs"
+                  - "ec2:Describe*" 
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterfacePermission
+                Resource: 
+                  !Join
+                    - ''
+                    - - 'arn:aws:ec2:'
+                      - !Ref AWS::Region
+                      - ':'
+                      - !Ref AWS::AccountId
+                      - ':'
+                      - 'network-interface/*'
+                Condition: #maybe this condition is not necesary but improve the security
+                  StringEquals:
+                    ec2:Subnet:
+                      #- arn:aws:ec2:us-east-2:762537114155:subnet/subnet-0d094de9294284e58
+                      #- !GetAtt
+                      #- arn:aws:ec2:us-east-2:762537114155:subnet/*
+                      - !Join
+                          - ''
+                          - - 'arn:aws:ec2:'
+                            - !Ref AWS::Region
+                            - ':'
+                            - !Ref AWS::AccountId
+                            - ':'
+                            - 'subnet/' 
+                            - !Ref VoiceTranslatorSubnetPriv
+                    ec2:AuthorizedService: codebuild.amazonaws.com
+        - PolicyName: "CFCodeBuildBasePolicyParkingBack"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Resource:
+                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/parking-ramp-up-back
+                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/parking-ramp-up-back:*
+                #- !GetAtt CFParkingBackCodeBuild.Arn #Circular reference here
+                #- arn:aws:logs:us-east-2:*
+                #- arn:aws:logs:us-east-2:762537114155:*
+                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/*
+                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/*:*
+                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/
+                - "*"
+                #- !Join
+                #  - ''
+                #  - - 'arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/'
+                #    - !Ref CFParkingBackCodeBuild
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+            - Effect: Allow
+              Resource:
+                #- arn:aws:s3:::codepipeline-us-east-1-* ###############################3
+                - !Join
+                    - ''
+                    - - 'arn:aws:s3:::codepipeline-'
+                      - !Ref AWS::Region
+                      - '-*'
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:GetObjectVersion
+                - s3:GetBucketAcl
+                - s3:GetBucketLocation
+                - s3:Get*
+            - Effect: Allow
+              Resource:
+                - arn:aws:s3:::voice-translator-lambda
+                - arn:aws:s3:::voice-translator-lambda/* #bucket acces policy
+              Action:
+                - s3:PutObject
+                - s3:GetBucketAcl
+                - s3:GetBucketLocation
+                - s3:GetObject
+                - s3:GetObjectVersion
+                - s3:Get*
+      #RoleName: "CFCodebuildParkingRampUpBackServiceRole"
+  VoiceTranslatorCodebuildInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        -
+          Ref: "VoiceTranslatorCodeBuildRole"
+
+  ########################################################################################################################################
+  #########################################################################################################################################3
+
+  #EC2 security group
+  VoiceTranslatorEc2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "VoiceTranslatorEC2SecurityGroup"
+      GroupDescription: Voice Translator security group
+      VpcId: !Ref VoiceTranslatorVPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: owner
+          Value: dacevedo  
+        - Key: Name
+          Value: VoiceTranslatorEc2SecurityGroup 
+
+  VoiceTranslatorCodeBuild:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Description: 'CodeBuild for project Voice Translator'
+      Source: #required
+        GitCloneDepth: 1
+        GitSubmodulesConfig:
+          FetchSubmodules: 'True'
+        Location: 'https://github.com/Carlos4ndresh/voicetranslateapp.git'
+        ReportBuildStatus: 'True'
+        Type: GITHUB
+      #SourceVersion: 'refs/heads/infrastructure_pipeline'
+      Name: VoiceTranslatorCodeBuild
+      Artifacts: #required
+        EncryptionDisabled: 'True'
+        Location: voice-translator-lambda
+        Name: VoiceTranslator
+        OverrideArtifactName: 'False'
+        Packaging: NONE
+        Type: S3
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: VoiceTranslatorCodeBuild
+          Status: ENABLED
+        S3Logs:
+          EncryptionDisabled: 'False'
+          Status: DISABLED
+      ServiceRole: !GetAtt VoiceTranslatorCodeBuildRole.Arn #required
+      QueuedTimeoutInMinutes: 120
+      Environment: #required
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:2.0
+        Type: LINUX_CONTAINER
+      Tags:
+        - Key: owner
+          Value: dacevedo
+      TimeoutInMinutes: 60
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref VoiceTranslatorEc2SecurityGroup 
+        Subnets: 
+          - !Ref VoiceTranslatorSubnetPriv
+        VpcId: !Ref VoiceTranslatorVPC
+    DependsOn: VoiceTranslatorLambda
+
+  #Pipeline
+  VoiceTranslatorCodePipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      ArtifactStore:
+        Location: voice-translator-lambda
+        Type: S3
+      Name: 'VoiceTranslatorPipeline'
+      RestartExecutionOnUpdate: 'True'
+      RoleArn: !GetAtt VoiceTranslatorCodePipelineRole.Arn #required
+      Stages: #required
+      - Name: 'Source'
+        Actions: 
+        - Name: 'Source'
+          ActionTypeId: 
+            Category: Source
+            Owner: ThirdParty
+            Provider: GitHub
+            Version: '1'
+          Configuration:
+            Owner: Carlos4ndresh
+            Branch: infrastructure_pipeline
+            PollForSourceChanges: 'False'
+            Repo: voicetranslateapp
+            OAuthToken: 'ac76d16264c42360ab6e5a174baf35b1649b2e30'
+          InputArtifacts: []
+          OutputArtifacts: 
+          - Name: SourceArtifact
+          Region: !Ref AWS::Region
+          RunOrder: 1
+      - Name: Build
+        Actions:
+        - Name: Build
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeBuild
+            Version: '1'
+          RunOrder: 1
+          Configuration:
+            ProjectName: !Ref VoiceTranslatorCodeBuild
+          OutputArtifacts:
+          - Name: BuildArtifact
+          InputArtifacts:
+          - Name: SourceArtifact
+          Region: !Ref AWS::Region
+    DependsOn: VoiceTranslatorCodeBuild
 
   CognitoIdentityPool:
     Type: AWS::Cognito::IdentityPool
@@ -200,9 +740,9 @@ Resources:
                       - "/*"
 
 Outputs:
-  VoiceTranslatorLink:
-    Description: 'Domain name for our cloudfront distribution'
-    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+  #VoiceTranslatorLink:
+  #  Description: 'Domain name for our cloudfront distribution'
+  #  Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket
