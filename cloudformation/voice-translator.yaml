@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
+Parameters: 
+  GitHubPersonalToken:
+    Type: String
+    NoEcho: 'True'
+  #GitHubPersonalToken: 
+  #  Type: AWS::SSM::Parameter::GitHubPersonalToken2<String>
+
 Resources:
 
   #███╗   ██╗███████╗████████╗██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗███████╗
@@ -678,13 +685,13 @@ Resources:
             Branch: infrastructure_pipeline
             PollForSourceChanges: 'False'
             Repo: voicetranslateapp
-            OAuthToken: '{{resolve:ssm-secure:GitHubPersonalToken:1}}'
+            OAuthToken: !Ref GitHubPersonalToken
           InputArtifacts: []
           OutputArtifacts: 
           - Name: SourceArtifact
           Region: !Ref AWS::Region
           RunOrder: 1
-      - Name: Build + Deploy
+      - Name: Build_Deploy
         Actions:
         - Name: Build
           ActionTypeId:
