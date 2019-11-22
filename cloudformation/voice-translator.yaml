@@ -583,11 +583,15 @@ Resources:
                 - s3:GetObject
                 - s3:GetObjectVersion
                 - s3:Get*
-            - Effect: Allow
-              Resource:
-                - "*"
-              Action:
-                - "cloudformation:*"
+            #- Effect: Allow
+            #  Resource:
+            #    - "*"
+            #  Action:
+            #    - "cloudformation:*"
+            - Action:
+                - iam:GetRole
+              Resource: "*"
+              Effect: Allow
   VoiceTranslatorCodebuildInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
