@@ -70,6 +70,15 @@ Resources:
         - Key: Name
           Value: VoiceTranslatorEIP2
 
+  #create an elastic IP this EIP is for test
+  VoiceTranslatorEIP3:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: standard
+      Tags: 
+        - Key: Name
+          Value: VoiceTranslatorEIP3
+
   #create subnets public
   VoiceTranslatorSubnetPub:
     Type: AWS::EC2::Subnet
