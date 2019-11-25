@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
+#Personal security access token
 Parameters: 
   GitHubPersonalToken:
     Type: String
@@ -23,8 +24,6 @@ Resources:
       EnableDnsHostnames: 'true'
       InstanceTenancy: default
       Tags:
-        - Key: owner
-          Value: dacevedo
         - Key: Name
           Value: VoiceTranslatorVPC
 
@@ -33,8 +32,6 @@ Resources:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-        - Key: owner
-          Value: dacevedo
         - Key: Name
           Value: VoiceTranslatorInternetGateway
 
@@ -60,18 +57,18 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
+      Tags: 
+        - Key: Name
+          Value: VoiceTranslatorEIP
 
-  #create an elastic IP for vpc
-  VoiceTranslatorEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: standard
-
-  #create an elastic IP for vpc
-  VoiceTranslatorEIP3:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: standard
+  #create an elastic IP this EIP is for test
+  #VoiceTranslatorEIP2:
+  #  Type: AWS::EC2::EIP
+  #  Properties:
+  #    Domain: standard
+  #    Tags: 
+  #      - Key: Name
+  #        Value: VoiceTranslatorEIP2
 
   #create subnets public
   VoiceTranslatorSubnetPub:
@@ -82,8 +79,6 @@ Resources:
       CidrBlock: 10.1.1.0/24
       MapPublicIpOnLaunch: 'true'
       Tags:
-        - Key: owner
-          Value: dacevedo
         - Key: Name
           Value: VoiceTranslatorSubnetPub
 
@@ -105,8 +100,6 @@ Resources:
     Properties:
       VpcId: !Ref VoiceTranslatorVPC
       Tags:
-        - Key: owner
-          Value: dacevedo
         - Key: Name
           Value: VoiceTranslatorRouteTablePub
   VoiceTranslatorInternetRoutePub:
@@ -123,8 +116,6 @@ Resources:
     Properties:
       VpcId: !Ref VoiceTranslatorVPC
       Tags:
-        - Key: owner
-          Value: voice
         - Key: Name
           Value: VoiceTranslatorRouteTablePriv
   VoiceTranslatorInternetRoutePriv:
@@ -148,7 +139,14 @@ Resources:
       RouteTableId: !Ref VoiceTranslatorRouteTablePriv
       SubnetId: !Ref VoiceTranslatorSubnetPriv
 
-  #####################################################################################################
+
+  #███████╗██████╗     ██████╗ ██╗   ██╗ ██████╗██╗  ██╗███████╗████████╗███████╗
+  #██╔════╝╚════██╗    ██╔══██╗██║   ██║██╔════╝██║ ██╔╝██╔════╝╚══██╔══╝██╔════╝
+  #███████╗ █████╔╝    ██████╔╝██║   ██║██║     █████╔╝ █████╗     ██║   ███████╗
+  #╚════██║ ╚═══██╗    ██╔══██╗██║   ██║██║     ██╔═██╗ ██╔══╝     ██║   ╚════██║
+  #███████║██████╔╝    ██████╔╝╚██████╔╝╚██████╗██║  ██╗███████╗   ██║   ███████║
+  #╚══════╝╚═════╝     ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝
+
   VoiceTranslatorBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -175,6 +173,14 @@ Resources:
           Resource:
           - !Join ['', ['arn:aws:s3:::', !Ref 'VoiceTranslatorBucket', '/*']]
 
+  
+  #██╗      █████╗ ███╗   ███╗██████╗ ██████╗  █████╗ 
+  #██║     ██╔══██╗████╗ ████║██╔══██╗██╔══██╗██╔══██╗
+  #██║     ███████║██╔████╔██║██████╔╝██║  ██║███████║
+  #██║     ██╔══██║██║╚██╔╝██║██╔══██╗██║  ██║██╔══██║
+  #███████╗██║  ██║██║ ╚═╝ ██║██████╔╝██████╔╝██║  ██║
+  #╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═════╝ ╚═════╝ ╚═╝  ╚═╝
+                                                   
   VoiceTranslatorLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -187,40 +193,57 @@ Resources:
       MemorySize: 1024
       Timeout: 30
 
-  #CfDistribution:
-  #  Metadata:
-  #    Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-  #  Properties:
-  #    DistributionConfig:
-  #      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-  #      DefaultCacheBehavior:
-  #        AllowedMethods:
-  #          - 'HEAD'
-  #          - 'GET'
-  #        CachedMethods:
-  #          - 'HEAD'
-  #          - 'GET'
-  #        Compress: false
-  #        ForwardedValues:
-  #          Cookies:
-  #            Forward: 'none'
-  #          Headers:
-  #            - 'Origin'
-  #          QueryString: false
-  #        DefaultTTL: 0
-  #        TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
-  #        ViewerProtocolPolicy: 'redirect-to-https'
-  #      DefaultRootObject: 'index.html'
-  #      Enabled: true
-  #      HttpVersion: 'http1.1'
-  #      IPV6Enabled: false
-  #      Origins:
-  #        - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
-  #          Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
-  #          S3OriginConfig: {}
-  #      PriceClass: 'PriceClass_All'
-  #  Type: 'AWS::CloudFront::Distribution'
+  
+  # ██████╗██╗      ██████╗ ██╗   ██╗██████╗     ███████╗██████╗  ██████╗ ███╗   ██╗████████╗
+  #██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗    ██╔════╝██╔══██╗██╔═══██╗████╗  ██║╚══██╔══╝
+  #██║     ██║     ██║   ██║██║   ██║██║  ██║    █████╗  ██████╔╝██║   ██║██╔██╗ ██║   ██║   
+  #██║     ██║     ██║   ██║██║   ██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╗██║   ██║   
+  #╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   
+  # ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   
 
+  CfDistribution:
+    Metadata:
+      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+    Properties:
+      DistributionConfig:
+        Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - 'HEAD'
+            - 'GET'
+          CachedMethods:
+            - 'HEAD'
+            - 'GET'
+          Compress: false
+          ForwardedValues:
+            Cookies:
+              Forward: 'none'
+            Headers:
+              - 'Origin'
+            QueryString: false
+          DefaultTTL: 0
+          TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
+          ViewerProtocolPolicy: 'redirect-to-https'
+        DefaultRootObject: 'index.html'
+        Enabled: true
+        HttpVersion: 'http1.1'
+        IPV6Enabled: false
+        Origins:
+          - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
+            Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
+            S3OriginConfig: {}
+        PriceClass: 'PriceClass_All'
+    Type: 'AWS::CloudFront::Distribution'
+
+
+  #██╗ █████╗ ███╗   ███╗    ██████╗  ██████╗ ██╗     ███████╗███████╗
+  #██║██╔══██╗████╗ ████║    ██╔══██╗██╔═══██╗██║     ██╔════╝██╔════╝
+  #██║███████║██╔████╔██║    ██████╔╝██║   ██║██║     █████╗  ███████╗
+  #██║██╔══██║██║╚██╔╝██║    ██╔══██╗██║   ██║██║     ██╔══╝  ╚════██║
+  #██║██║  ██║██║ ╚═╝ ██║    ██║  ██║╚██████╔╝███████╗███████╗███████║
+  #╚═╝╚═╝  ╚═╝╚═╝     ╚═╝    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝
+
+  #Lambda IAM ROLE
   VoiceTranslatorLambdaRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -323,7 +346,6 @@ Resources:
               Action:
                 - codepipeline:StartPipelineExecution
               Resource:
-                #- arn:aws:codepipeline:us-east-2:762537114155:parking-back-pipeline
                 - !Join
                     - ''
                     - - 'arn:aws:codepipeline:'
@@ -332,7 +354,6 @@ Resources:
                       - !Ref AWS::AccountId
                       - ':' 
                       - !Ref VoiceTranslatorCodePipeline
-      #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
   VoiceTranslatorPipelineExecutionInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -465,7 +486,6 @@ Resources:
                 - iam:GetRole
               Resource: "*"
               Effect: Allow
-      #RoleName: "CFEC2InstanceRoleCodeDeployParameter"
   VoiceTranslatorCodePipelineInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -474,8 +494,6 @@ Resources:
         -
           Ref: "VoiceTranslatorCodePipelineRole"
   
-  ###########################################################################################################################3
-  ############################################################################################################################3
   # parking back CodeBuild Service Role
   VoiceTranslatorCodeBuildRole:
     Type: "AWS::IAM::Role"
@@ -492,7 +510,7 @@ Resources:
               - "sts:AssumeRole"
       Path: "/service-role/"
       Policies:
-        - PolicyName: "CFCodeBuildVpcPolicyParkingBack"
+        - PolicyName: "CFCodeBuildVpcPolicyVoiceTranslator"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -522,9 +540,6 @@ Resources:
                 Condition: #maybe this condition is not necesary but improve the security
                   StringEquals:
                     ec2:Subnet:
-                      #- arn:aws:ec2:us-east-2:762537114155:subnet/subnet-0d094de9294284e58
-                      #- !GetAtt
-                      #- arn:aws:ec2:us-east-2:762537114155:subnet/*
                       - !Join
                           - ''
                           - - 'arn:aws:ec2:'
@@ -535,7 +550,7 @@ Resources:
                             - 'subnet/' 
                             - !Ref VoiceTranslatorSubnetPriv
                     ec2:AuthorizedService: codebuild.amazonaws.com
-        - PolicyName: "CFCodeBuildManagedSecretPolicyParkingBack"
+        - PolicyName: "CFCodeBuildManagedSecretPolicyVoiceTranslator"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -544,32 +559,19 @@ Resources:
                   - "kms:Decrypt"
                   - "ssm:GetParameters"
                 Resource: "*"
-        - PolicyName: "CFCodeBuildBasePolicyParkingBack"
+        - PolicyName: "CFCodeBuildBasePolicyVoiceTranslator"
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
             - Effect: Allow
               Resource:
-                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/parking-ramp-up-back
-                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/parking-ramp-up-back:*
-                #- !GetAtt CFParkingBackCodeBuild.Arn #Circular reference here
-                #- arn:aws:logs:us-east-2:*
-                #- arn:aws:logs:us-east-2:762537114155:*
-                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/*
-                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/*:*
-                #- arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/
                 - "*"
-                #- !Join
-                #  - ''
-                #  - - 'arn:aws:logs:us-east-2:762537114155:log-group:/aws/codebuild/'
-                #    - !Ref CFParkingBackCodeBuild
               Action:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
             - Effect: Allow
               Resource:
-                #- arn:aws:s3:::codepipeline-us-east-1-* ###############################3
                 - !Join
                     - ''
                     - - 'arn:aws:s3:::codepipeline-'
@@ -585,7 +587,7 @@ Resources:
             - Effect: Allow
               Resource:
                 - arn:aws:s3:::voice-translator-lambda
-                - arn:aws:s3:::voice-translator-lambda/* #bucket acces policy
+                - arn:aws:s3:::voice-translator-lambda/* 
               Action:
                 - s3:PutObject
                 - s3:GetBucketAcl
@@ -614,10 +616,47 @@ Resources:
         -
           Ref: "VoiceTranslatorCodeBuildRole"
 
-  ########################################################################################################################################
-  #########################################################################################################################################3
+  CognitoUnAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated: "cognito-identity.amazonaws.com"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+      Policies:
+        - PolicyName: "CognitoUnauthorizedPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt VoiceTranslatorLambda.Arn
+              - Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                Resource:
+                  Fn::Join:
+                    - ""
+                    -
+                      - "arn:aws:s3:::"
+                      -  Ref: "VoiceTranslatorBucket"
+                      - "/*"
 
-  #EC2 security group
+  
+  #███████╗███████╗ ██████╗██╗   ██╗██████╗ ██╗████████╗██╗   ██╗     ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗ ███████╗
+  #██╔════╝██╔════╝██╔════╝██║   ██║██╔══██╗██║╚══██╔══╝╚██╗ ██╔╝    ██╔════╝ ██╔══██╗██╔═══██╗██║   ██║██╔══██╗██╔════╝
+  #███████╗█████╗  ██║     ██║   ██║██████╔╝██║   ██║    ╚████╔╝     ██║  ███╗██████╔╝██║   ██║██║   ██║██████╔╝███████╗
+  #╚════██║██╔══╝  ██║     ██║   ██║██╔══██╗██║   ██║     ╚██╔╝      ██║   ██║██╔══██╗██║   ██║██║   ██║██╔═══╝ ╚════██║
+  #███████║███████╗╚██████╗╚██████╔╝██║  ██║██║   ██║      ██║       ╚██████╔╝██║  ██║╚██████╔╝╚██████╔╝██║     ███████║
+  #╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝        ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝     ╚══════╝
+
+  #Codebuild Security Group
   VoiceTranslatorEc2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -637,11 +676,17 @@ Resources:
         FromPort: 80
         ToPort: 80
         CidrIp: 0.0.0.0/0
-      Tags:
-        - Key: owner
-          Value: dacevedo  
+      Tags: 
         - Key: Name
           Value: VoiceTranslatorEc2SecurityGroup 
+
+  
+  # ██████╗ ██████╗ ██████╗ ███████╗██████╗ ██╗   ██╗██╗██╗     ██████╗ 
+  #██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗██║   ██║██║██║     ██╔══██╗
+  #██║     ██║   ██║██║  ██║█████╗  ██████╔╝██║   ██║██║██║     ██║  ██║
+  #██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗██║   ██║██║██║     ██║  ██║
+  #╚██████╗╚██████╔╝██████╔╝███████╗██████╔╝╚██████╔╝██║███████╗██████╔╝
+  # ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═════╝  ╚═════╝ ╚═╝╚══════╝╚═════╝ 
 
   VoiceTranslatorCodeBuild:
     Type: "AWS::CodeBuild::Project"
@@ -676,9 +721,6 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:2.0
         Type: LINUX_CONTAINER
-      Tags:
-        - Key: owner
-          Value: dacevedo
       TimeoutInMinutes: 60
       VpcConfig:
         SecurityGroupIds: 
@@ -690,6 +732,14 @@ Resources:
       - VoiceTranslatorLambda
      # - CfDistribution
 
+
+  #██████╗ ██╗██████╗ ███████╗██╗     ██╗███╗   ██╗███████╗
+  #██╔══██╗██║██╔══██╗██╔════╝██║     ██║████╗  ██║██╔════╝
+  #██████╔╝██║██████╔╝█████╗  ██║     ██║██╔██╗ ██║█████╗  
+  #██╔═══╝ ██║██╔═══╝ ██╔══╝  ██║     ██║██║╚██╗██║██╔══╝  
+  #██║     ██║██║     ███████╗███████╗██║██║ ╚████║███████╗
+  #╚═╝     ╚═╝╚═╝     ╚══════╝╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝
+                                                        
   #Pipeline
   VoiceTranslatorCodePipeline:
     Type: "AWS::CodePipeline::Pipeline"
@@ -744,6 +794,14 @@ Resources:
       AllowUnauthenticatedIdentities: True
 
 
+
+  # ██████╗ ██████╗  ██████╗ ███╗   ██╗██╗████████╗██╗ ██████╗ 
+  #██╔════╝██╔═══██╗██╔════╝ ████╗  ██║██║╚══██╔══╝██║██╔═══██╗
+  #██║     ██║   ██║██║  ███╗██╔██╗ ██║██║   ██║   ██║██║   ██║
+  #██║     ██║   ██║██║   ██║██║╚██╗██║██║   ██║   ██║██║   ██║
+  #╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║██║   ██║   ██║╚██████╔╝
+  # ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝ ╚═════╝ 
+                                                            
   IdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
     Properties:
@@ -751,42 +809,10 @@ Resources:
       Roles:
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
 
-  CognitoUnAuthorizedRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Federated: "cognito-identity.amazonaws.com"
-            Action:
-              - "sts:AssumeRoleWithWebIdentity"
-      Policies:
-        - PolicyName: "CognitoUnauthorizedPolicy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "lambda:InvokeFunction"
-                Resource:
-                  - !GetAtt VoiceTranslatorLambda.Arn
-              - Effect: Allow
-                Action:
-                  - "s3:PutObject"
-                Resource:
-                  Fn::Join:
-                    - ""
-                    -
-                      - "arn:aws:s3:::"
-                      -  Ref: "VoiceTranslatorBucket"
-                      - "/*"
-
 Outputs:
-  #VoiceTranslatorLink:
-    #Description: 'Domain name for our cloudfront distribution'
-    #Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+  VoiceTranslatorLink:
+    Description: 'Domain name for our cloudfront distribution'
+    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket
