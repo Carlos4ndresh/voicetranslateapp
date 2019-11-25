@@ -748,7 +748,7 @@ Resources:
         Location: voice-translator-lambda
         Type: S3
       Name: 'VoiceTranslatorPipeline'
-      RestartExecutionOnUpdate: 'True'
+      RestartExecutionOnUpdate: 'False'
       RoleArn: !GetAtt VoiceTranslatorCodePipelineRole.Arn #required
       Stages: #required
       - Name: 'Source'
@@ -772,7 +772,7 @@ Resources:
           RunOrder: 1
       - Name: Build_Deploy
         Actions:
-        - Name: Build
+        - Name: Build_Deploy
           ActionTypeId:
             Category: Build
             Owner: AWS
