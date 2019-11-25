@@ -67,6 +67,12 @@ Resources:
     Properties:
       Domain: standard
 
+  #create an elastic IP for vpc
+  VoiceTranslatorEIP3:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: standard
+
   #create subnets public
   VoiceTranslatorSubnetPub:
     Type: AWS::EC2::Subnet
