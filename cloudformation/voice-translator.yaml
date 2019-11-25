@@ -596,6 +596,7 @@ Resources:
                 - iam:GetRole
                 - cloudfront:CreateDistribution
                 - ec2:*
+                - codepipeline:*
               Resource: "*"
               Effect: Allow
   VoiceTranslatorCodebuildInstanceProfile:
