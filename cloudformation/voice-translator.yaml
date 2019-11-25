@@ -62,10 +62,10 @@ Resources:
       Domain: vpc
 
   #create an elastic IP for vpc
-  #VoiceTranslatorEIP2:
-  #  Type: AWS::EC2::EIP
-  #  Properties:
-  #    Domain: standard
+  VoiceTranslatorEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: standard
 
   #create subnets public
   VoiceTranslatorSubnetPub:
@@ -680,7 +680,7 @@ Resources:
         VpcId: !Ref VoiceTranslatorVPC
     DependsOn: 
       - VoiceTranslatorLambda
-      - CfDistribution
+     # - CfDistribution
 
   #Pipeline
   VoiceTranslatorCodePipeline:
@@ -776,7 +776,7 @@ Resources:
                       - "/*"
 
 Outputs:
-  VoiceTranslatorLink:
+  #VoiceTranslatorLink:
     #Description: 'Domain name for our cloudfront distribution'
     #Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
