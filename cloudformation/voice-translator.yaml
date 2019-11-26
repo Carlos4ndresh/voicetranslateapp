@@ -62,22 +62,13 @@ Resources:
           Value: VoiceTranslatorEIP
 
   #create an elastic IP this EIP is for test
-  VoiceTranslatorEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: standard
-      Tags: 
-        - Key: Name
-          Value: VoiceTranslatorEIP2
-
-  #create an elastic IP this EIP is for test
-  VoiceTranslatorEIP3:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: standard
-      Tags: 
-        - Key: Name
-          Value: VoiceTranslatorEIP3
+  #VoiceTranslatorEIP2:
+  #  Type: AWS::EC2::EIP
+   # Properties:
+   #   Domain: standard
+    #  Tags: 
+    #    - Key: Name
+    #      Value: VoiceTranslatorEIP2
 
   #create subnets public
   VoiceTranslatorSubnetPub:
@@ -210,39 +201,39 @@ Resources:
   #╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   
   # ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   
 
-  CfDistribution:
-    Metadata:
-      Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-    Properties:
-      DistributionConfig:
-        Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - 'HEAD'
-            - 'GET'
-          CachedMethods:
-            - 'HEAD'
-            - 'GET'
-          Compress: false
-          ForwardedValues:
-            Cookies:
-              Forward: 'none'
-            Headers:
-              - 'Origin'
-            QueryString: false
-          DefaultTTL: 0
-          TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
-          ViewerProtocolPolicy: 'redirect-to-https'
-        DefaultRootObject: 'index.html'
-        Enabled: true
-        HttpVersion: 'http1.1'
-        IPV6Enabled: false
-        Origins:
-          - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
-            Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
-            S3OriginConfig: {}
-        PriceClass: 'PriceClass_All'
-    Type: 'AWS::CloudFront::Distribution'
+ # CfDistribution:
+  #  Metadata:
+   #   Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+    #Properties:
+     # DistributionConfig:
+      #  Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
+       # DefaultCacheBehavior:
+        #  AllowedMethods:
+         #   - 'HEAD'
+          #  - 'GET'
+          #CachedMethods:
+           # - 'HEAD'
+            #- 'GET'
+          #Compress: false
+          #ForwardedValues:
+           # Cookies:
+            #  Forward: 'none'
+            #Headers:
+             # - 'Origin'
+            #QueryString: false
+          #DefaultTTL: 0
+          #TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
+          #ViewerProtocolPolicy: 'redirect-to-https'
+        #DefaultRootObject: 'index.html'
+        #Enabled: true
+        #HttpVersion: 'http1.1'
+        #IPV6Enabled: false
+        #Origins:
+        #  - DomainName: !GetAtt VoiceTranslatorBucket.DomainName
+        #    Id: !Sub 's3-origin-${VoiceTranslatorBucket}'
+        #    S3OriginConfig: {}
+        #PriceClass: 'PriceClass_All'
+    #Type: 'AWS::CloudFront::Distribution'
 
 
   #██╗ █████╗ ███╗   ███╗    ██████╗  ██████╗ ██╗     ███████╗███████╗
@@ -819,9 +810,9 @@ Resources:
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
 
 Outputs:
-  VoiceTranslatorLink:
-    Description: 'Domain name for our cloudfront distribution'
-    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+  #VoiceTranslatorLink:
+   # Description: 'Domain name for our cloudfront distribution'
+    #Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket
