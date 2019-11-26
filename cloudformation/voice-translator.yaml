@@ -62,13 +62,13 @@ Resources:
           Value: VoiceTranslatorEIP
 
   #create an elastic IP this EIP is for test
-  #VoiceTranslatorEIP2:
-  #  Type: AWS::EC2::EIP
-   # Properties:
-   #   Domain: standard
-    #  Tags: 
-    #    - Key: Name
-    #      Value: VoiceTranslatorEIP2
+  VoiceTranslatorEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: standard
+      Tags: 
+        - Key: Name
+          Value: VoiceTranslatorEIP2
 
   #create subnets public
   VoiceTranslatorSubnetPub:
