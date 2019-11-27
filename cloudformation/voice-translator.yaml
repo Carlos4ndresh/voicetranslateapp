@@ -200,7 +200,6 @@ Resources:
   #██║     ██║     ██║   ██║██║   ██║██║  ██║    ██╔══╝  ██╔══██╗██║   ██║██║╚██╗██║   ██║   
   #╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝    ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   
   # ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   
-
   CfDistribution:
     Metadata:
       Comment: 'CloudFront distribution over Voice Translator App - to enable HTTPS'
@@ -234,6 +233,7 @@ Resources:
             S3OriginConfig: {}
         PriceClass: 'PriceClass_All'
     Type: 'AWS::CloudFront::Distribution'
+  
 
 
   #██╗ █████╗ ███╗   ███╗    ██████╗  ██████╗ ██╗     ███████╗███████╗
@@ -603,9 +603,13 @@ Resources:
             - Action:
                 - iam:GetRole
                 - iam:PassRole
+                - iam:PutRolePolicy
+                - cloudfront:TagResource
                 - cloudfront:CreateDistribution
+                - cloudfront:GetDistribution
                 - ec2:*
                 - codepipeline:*
+                - cloudformation:CreateChangeSet
               Resource: "*"
               Effect: Allow
   VoiceTranslatorCodebuildInstanceProfile:
@@ -810,9 +814,9 @@ Resources:
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
 
 Outputs:
-  VoiceTranslatorLink:
-    Description: 'Domain name for our cloudfront distribution'
-    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+  #VoiceTranslatorLink:
+   # Description: 'Domain name for our cloudfront distribution'
+    #Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket
