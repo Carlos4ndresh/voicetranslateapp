@@ -1,0 +1,29 @@
+version: 0.2
+env:
+  parameter-store:
+    TF_VAR_github_token: "GitHubPersonalToken"
+    TF_VAR_aws_access_key: "terraformAccess"
+    TF_VAR_aws_secret_key: "terraformSecret"
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - "cd /usr/bin"
+      - "curl -s -qL -o terraform.zip https://releases.hashicorp.com/terraform/0.12.17/terraform_0.12.17_linux_amd64.zip"
+      - "unzip -o terraform.zip"
+  build:
+    commands:
+      - cd "$CODEBUILD_SRC_DIR"
+      - jar -cvf lambda/voice-translator-lambda.jar lambda/java-project/src/main/java/app/babelfish/LambdaHandler.java
+      - cd terraform
+      - terraform init
+      - aws s3 cp s3://voice-translator-lambda/terraform.tfstate terraform.tfstate
+      - terraform plan -out voice.plan
+      - terraform apply "voice.plan"
+
+
+  post_build:
+    commands:
+      - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
+      - aws s3 cp terraform/terraform.tfstate s3://voice-translator-lambda/terraform.tfstate 
