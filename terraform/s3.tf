@@ -3,7 +3,7 @@
 #+--------------------------------------------------------------------+
 
 resource "aws_s3_bucket" "voice_translator_bucket" {
-  bucket = "VoiceTranslatorBucket"
+  bucket = "voice-translator-bucket"
   acl    = "public-read"
 
   website {

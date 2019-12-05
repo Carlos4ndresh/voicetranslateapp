@@ -70,9 +70,10 @@ resource "aws_codepipeline" "voice_translate_pipeline" {
       output_artifacts = ["source_output"]
 
       configuration = {
-        Owner  = "Carlos4ndresh"
-        Repo   = "voicetranslateapp"
-        Branch = "infrastructure_pipeline"
+        Owner      = "Carlos4ndresh"
+        Repo       = "voicetranslateapp"
+        Branch     = "infrastructure_pipeline"
+        OAuthToken = "${var.github_token}"
       }
     }
   }
@@ -102,7 +103,7 @@ resource "aws_codepipeline" "voice_translate_pipeline" {
 #+--------------------------------------------------------------------+
 
 resource "aws_iam_role" "voice_translator_codebuild_role" {
-  name = "VoiceTranslatorCodebuildRole"
+  name = "codebuildVoiceT"
 
   assume_role_policy = <<EOF
 {
@@ -138,6 +139,11 @@ resource "aws_iam_role_policy_attachment" "cf_secrets" {
 resource "aws_iam_role_policy_attachment" "s3_access_codebuild" {
   role       = "${aws_iam_role.voice_translator_codebuild_role.name}"
   policy_arn = "${aws_iam_policy.s3_access.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "s3_lambda_access_codebuild" {
+  role       = "${aws_iam_role.voice_translator_codebuild_role.name}"
+  policy_arn = "${aws_iam_policy.s3_access_lambda.arn}"
 }
 #+--------------------------------------------------------------------+
 #|                         Codepipeline Role                          |

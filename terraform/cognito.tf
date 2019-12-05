@@ -29,7 +29,7 @@ resource "aws_iam_role" "voice_translator_cognito_unauthorized_role" {
     {
       "Effect": "Allow",
       "Principal": {
-        "Service": "cognito-identity.amazonaws.com"
+        "Federated": "cognito-identity.amazonaws.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity"
     }

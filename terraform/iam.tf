@@ -3,7 +3,7 @@
 #+--------------------------------------------------------------------+
 
 resource "aws_iam_policy" "transcribe_access" {
-  name        = "TranscribeAccess"
+  name        = "TranscribeAccessTerraform"
   description = "Policy for accessing Transcribe from Lambda"
 
   policy = <<EOF
@@ -24,7 +24,7 @@ EOF
 }
 
 resource "aws_iam_policy" "cloudwatch_logs" {
-  name        = "CloudWatchPolicy"
+  name        = "CloudWatchPolicyTerraform"
   description = "Policy for creating Cloudwatch logs"
 
   policy = <<EOF
@@ -47,7 +47,7 @@ EOF
 }
 
 resource "aws_iam_policy" "translate_access" {
-    name        = "TranslateAccess"
+    name        = "TranslateAccessTerraform"
     description = "Policy for using translate text"
 
     policy = <<EOF
@@ -68,7 +68,7 @@ EOF
 }
 
 resource "aws_iam_policy" "polly_access" {
-    name        = "PollyAccess"
+    name        = "PollyAccessTerraform"
     description = "Policy for using Polly Synthesize Speech"
 
     policy = <<EOF
@@ -89,7 +89,7 @@ EOF
 }
 
 resource "aws_iam_policy" "s3_access" {
-    name        = "S3Access"
+    name        = "S3AccessTerraform"
     description = "Policy for Reading and placing objects in the voice translator bucket"
 
     policy = <<EOF
@@ -104,15 +104,62 @@ resource "aws_iam_policy" "s3_access" {
         "s3:PutObjectAcl"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::VoiceTranslatorBucket/*"
+      "Resource": "arn:aws:s3:::voice-translator-bucket/*"
     }
   ]
 }
 EOF
 }
 
+resource "aws_iam_policy" "s3_access_lambda" {
+    name        = "S3AccessLambdaTerraform"
+    description = "Policy for Reading and placing objects in the voice translator bucket"
+
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1574977890906",
+      "Action": [
+        "s3:Get*",
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::voice-translator-lambda/*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "s3_access_lambda_bucket" {
+    name        = "S3AccessLambdaBucketTerraform"
+    description = "Policy for Reading and placing objects in the voice translator bucket"
+
+    policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1574977890906",
+      "Action": [
+        "s3:Get*",
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::voice-translator-lambda"
+    }
+  ]
+}
+EOF
+}
+
+
 resource "aws_iam_policy" "lambda_access_cognito" {
-    name        = "LambdaAccessCognito"
+    name        = "LambdaAccessCognitoTerraform"
     description = "Policy for Accessing the Voice Translate Lambda"
 
     policy = <<EOF
@@ -133,7 +180,7 @@ EOF
 }
 
 resource "aws_iam_policy" "cf_codebuild_policy" {
-    name        = "CFCodebuildPolicy"
+    name        = "CFCodebuildPolicyTerraform"
     description = "Policy for creating CF resources through cloudformation"
 
     policy = <<EOF
