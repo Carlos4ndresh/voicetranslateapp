@@ -145,6 +145,11 @@ resource "aws_iam_role_policy_attachment" "s3_lambda_access_codebuild" {
   role       = "${aws_iam_role.voice_translator_codebuild_role.name}"
   policy_arn = "${aws_iam_policy.s3_access_lambda.arn}"
 }
+
+resource "aws_iam_role_policy_attachment" "s3_lambda_bucket_access_codebuild" {
+  role       = "${aws_iam_role.voice_translator_codebuild_role.name}"
+  policy_arn = "${aws_iam_policy.s3_access_lambda_bucket.arn}"
+}
 #+--------------------------------------------------------------------+
 #|                         Codepipeline Role                          |
 #+--------------------------------------------------------------------+
