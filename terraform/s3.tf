@@ -5,6 +5,7 @@
 resource "aws_s3_bucket" "voice_translator_bucket" {
   bucket = "voice-translator-bucket"
   acl    = "public-read"
+  region = "${var.region}"
 
   website {
       index_document = "voice-translator.html"
