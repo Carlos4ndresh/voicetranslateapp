@@ -25,5 +25,6 @@ phases:
 
   post_build:
     commands:
+      - cd "$CODEBUILD_SRC_DIR"
       - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
       - aws s3 cp terraform/terraform.tfstate s3://voice-translator-lambda/terraform.tfstate 
