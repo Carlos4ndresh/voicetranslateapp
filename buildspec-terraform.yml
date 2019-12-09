@@ -18,13 +18,13 @@ phases:
       - jar -cvf lambda/voice-translator-lambda.jar lambda/java-project/src/main/java/app/babelfish/LambdaHandler.java
       - cd terraform
       - terraform init
-      - aws s3 cp s3://voice-translator-lambda/terraform.tfstate terraform.tfstate
-      - terraform plan -out voice.plan
-      - terraform apply "voice.plan"
+  #    - aws s3 cp s3://voice-translator-lambda/terraform.tfstate terraform.tfstate
+  #    - terraform plan -out voice.plan
+  #    - terraform apply "voice.plan"
 
 
   post_build:
     commands:
       - cd "$CODEBUILD_SRC_DIR"
       - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
-      - aws s3 cp terraform/terraform.tfstate s3://voice-translator-lambda/terraform.tfstate 
+  #    - aws s3 cp terraform/terraform.tfstate s3://voice-translator-lambda/terraform.tfstate 
