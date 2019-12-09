@@ -155,12 +155,6 @@ resource "aws_security_group" "voice_translator_SG" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    from_port  = 8080
-    to_port    = 8080
-    protocol   = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
     tags = {
       Name  = "VoiceTranslatorEc2SecurityGroup"
   } 
