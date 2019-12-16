@@ -16,9 +16,11 @@ phases:
     commands:
       - cd "$CODEBUILD_SRC_DIR"
       - jar -cvf lambda/voice-translator-lambda.jar lambda/java-project/src/main/java/app/babelfish/LambdaHandler.java
+      - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
       - cd terraform
       - terraform init
       - aws s3 cp s3://voice-translator-lambda/terraform.tfstate terraform.tfstate
+      - terraform tain aws_lambda_function.voice_translator_lambda_handler
       - terraform plan -out voice.plan
       - terraform apply "voice.plan"
 
@@ -26,5 +28,4 @@ phases:
   post_build:
     commands:
       - cd "$CODEBUILD_SRC_DIR"
-      - aws s3 cp lambda/voice-translator-lambda.jar s3://voice-translator-lambda/lambda/voice-translator-lambda.jar
       - aws s3 cp terraform/terraform.tfstate s3://voice-translator-lambda/terraform.tfstate 
