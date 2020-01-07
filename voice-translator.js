@@ -137,6 +137,8 @@ function processingView() {
 function recordingView() {
   // Hide processing message
   document.getElementById("processing").style.display = "none";
+  // Hide audio playback
+  document.getElementById("audio-output").style.display = "none";
   // Disable all buttons
   recordStartButton.disabled = true;
   recordStopButton.disabled = false;
@@ -146,6 +148,8 @@ function recordingView() {
 function resetView() {
   // Hide processing message
   document.getElementById("processing").style.display = "none";
+  // Hide audio playback
+  document.getElementById("audio-output").style.display = "none";
   // Disable all buttons
   recordStartButton.disabled = false;
   recordStopButton.disabled = true;
@@ -239,10 +243,10 @@ function uploadAudioRecording(blob) {
           } else {
             var resultUrl = data.Payload.replace(/['"]+/g, "");
             resetView();
+            // Hide audio playback
+            document.getElementById("audio-output").style.display = "inline";
             document.getElementById("audio-output").innerHTML =
-              '<audio controls autoplay><source src="' +
-              resultUrl +
-              '" type="audio/mpeg"></audio><br/>';
+              '<audio controls><source src="' + resultUrl + '" type="audio/mpeg"></audio><br/>';
           }
         });
       }

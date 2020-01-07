@@ -35,7 +35,7 @@ Resources:
                   "",
                   ["arn:aws:s3:::", !Ref "VoiceTranslatorBucket", "/*"],
                 ]
-
+  # TODO Include function to clean past MP3+wav files
   VoiceTranslatorLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -48,6 +48,9 @@ Resources:
       MemorySize: 1024
       Timeout: 30
 
+  # //TODO Index of the cloudfront distribution is wrong
+  # //TODO Configure Origin Acccess Identity for S3
+  # // Include AWS Certificate Manager for usage with another domain
   CfDistribution:
     Metadata:
       Comment: "CloudFront distribution over Voice Translator App - to enable HTTPS"
@@ -71,7 +74,7 @@ Resources:
           DefaultTTL: 0
           TargetOriginId: !Sub "s3-origin-${VoiceTranslatorBucket}"
           ViewerProtocolPolicy: "redirect-to-https"
-        DefaultRootObject: "index.html"
+        DefaultRootObject: "voice-translator.html"
         Enabled: true
         HttpVersion: "http1.1"
         IPV6Enabled: false
@@ -111,14 +114,6 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                 Resource: "arn:aws:logs:*:*:*"
-        - PolicyName: TranslateAccess
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "translate:TranslateText"
-                Resource: "*"
         - PolicyName: TranslateAccess
           PolicyDocument:
             Version: "2012-10-17"
