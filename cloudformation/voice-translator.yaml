@@ -74,7 +74,7 @@ Resources:
   VoiceTranslatorSubnetPub:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-2a
+      AvailabilityZone: us-east-1a
       VpcId: !Ref VoiceTranslatorVPC
       CidrBlock: 10.1.1.0/24
       MapPublicIpOnLaunch: 'true'
@@ -86,7 +86,7 @@ Resources:
   VoiceTranslatorSubnetPriv:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-2b
+      AvailabilityZone: us-east-1b
       VpcId: !Ref VoiceTranslatorVPC
       CidrBlock: 10.1.2.0/24
       MapPublicIpOnLaunch: 'false'
@@ -147,6 +147,12 @@ Resources:
   #███████║██████╔╝    ██████╔╝╚██████╔╝╚██████╗██║  ██╗███████╗   ██║   ███████║
   #╚══════╝╚═════╝     ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝
 
+  VoiceTranslatorLambdaBucket:                                                       
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      BucketName: voice-translator-lambda2
+
   VoiceTranslatorBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -187,11 +193,14 @@ Resources:
       Handler: "app.babelfish.LambdaHandler::handleRequest"
       Role: !GetAtt VoiceTranslatorLambdaRole.Arn
       Code:
-        S3Bucket: voice-translator-lambda
+        S3Bucket: voice-translator-lambda2
         S3Key: "voice-translator/lambda/voice-translator-lambda.jar"
       Runtime: "java8"
       MemorySize: 1024
       Timeout: 30
+    DependsOn:
+      - VoiceTranslatorCodeBuild
+      - CfDistribution
 
   
   # ██████╗██╗      ██████╗ ██╗   ██╗██████╗     ███████╗██████╗  ██████╗ ███╗   ██╗████████╗
@@ -223,7 +232,7 @@ Resources:
           DefaultTTL: 0
           TargetOriginId: !Sub 's3-origin-${VoiceTranslatorBucket}'
           ViewerProtocolPolicy: 'redirect-to-https'
-        DefaultRootObject: 'index.html'
+        DefaultRootObject: 'voice-translator.html'
         Enabled: true
         HttpVersion: 'http1.1'
         IPV6Enabled: false
@@ -586,8 +595,8 @@ Resources:
                 - s3:Get*
             - Effect: Allow
               Resource:
-                - arn:aws:s3:::voice-translator-lambda
-                - arn:aws:s3:::voice-translator-lambda/* 
+                - arn:aws:s3:::voice-translator-lambda2
+                - arn:aws:s3:::voice-translator-lambda2/* 
               Action:
                 - s3:PutObject
                 - s3:GetBucketAcl
@@ -707,7 +716,7 @@ Resources:
       Name: VoiceTranslatorCodeBuild
       Artifacts: #required
         EncryptionDisabled: 'True'
-        Location: voice-translator-lambda
+        Location: voice-translator-lambda2
         Name: VoiceTranslator
         OverrideArtifactName: 'False'
         Packaging: NONE
@@ -732,8 +741,8 @@ Resources:
         Subnets: 
           - !Ref VoiceTranslatorSubnetPriv
         VpcId: !Ref VoiceTranslatorVPC
-    DependsOn: 
-      - VoiceTranslatorLambda
+    #DependsOn: 
+      #- VoiceTranslatorLambda
       #- CfDistribution
 
 
@@ -749,7 +758,7 @@ Resources:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
       ArtifactStore:
-        Location: voice-translator-lambda
+        Location: voice-translator-lambda2
         Type: S3
       Name: 'VoiceTranslatorPipeline'
       RestartExecutionOnUpdate: 'False'
@@ -814,9 +823,9 @@ Resources:
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
 
 Outputs:
-  #VoiceTranslatorLink:
-   # Description: 'Domain name for our cloudfront distribution'
-    #Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
+  VoiceTranslatorLink:
+    Description: 'Domain name for our cloudfront distribution'
+    Value: !Join [ "", [ "https://", !GetAtt CfDistribution.DomainName, "/voice-translator.html" ] ]
   VoiceTranslatorBucket:
     Description: VoiceTranslator S3 Bucket
     Value: !Ref VoiceTranslatorBucket
