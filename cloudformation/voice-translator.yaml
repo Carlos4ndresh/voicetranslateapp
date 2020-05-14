@@ -5,6 +5,10 @@ Parameters:
   GitHubPersonalToken:
     Type: String
     NoEcho: 'True'
+  CodeBucket:
+    Type: String
+    Default: voice-translator-lambda2
+    Description: "The bucket where lambda jars are located"
 
 Resources:
 
@@ -187,7 +191,7 @@ Resources:
       Handler: "app.babelfish.LambdaHandler::handleRequest"
       Role: !GetAtt VoiceTranslatorLambdaRole.Arn
       Code:
-        S3Bucket: voice-translator-lambda2
+        S3Bucket: !Ref CodeBucket
         S3Key: "voice-translator/lambda/voice-translator-lambda.jar"
       Runtime: "java8"
       MemorySize: 1024
@@ -585,6 +589,7 @@ Resources:
                 - s3:GetBucketLocation
                 - s3:Get*
             - Effect: Allow
+              #TODO Join
               Resource:
                 - arn:aws:s3:::voice-translator-lambda2
                 - arn:aws:s3:::voice-translator-lambda2/* 
@@ -707,7 +712,7 @@ Resources:
       Name: VoiceTranslatorCodeBuild
       Artifacts: #required
         EncryptionDisabled: 'True'
-        Location: voice-translator-lambda2
+        Location: !Ref CodeBucket
         Name: VoiceTranslator
         OverrideArtifactName: 'False'
         Packaging: NONE
@@ -749,7 +754,7 @@ Resources:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
       ArtifactStore:
-        Location: voice-translator-lambda2
+        Location: !Ref CodeBucket
         Type: S3
       Name: 'VoiceTranslatorPipeline'
       RestartExecutionOnUpdate: 'False'
@@ -792,19 +797,18 @@ Resources:
           Region: !Ref AWS::Region
     DependsOn: VoiceTranslatorCodeBuild
 
+
+  # ██████╗ ██████╗  ██████╗ ███╗   ██╗██╗████████╗ ██████╗ 
+  #██╔════╝██╔═══██╗██╔════╝ ████╗  ██║██║╚══██╔══╝██╔═══██╗
+  #██║     ██║   ██║██║  ███╗██╔██╗ ██║██║   ██║   ██║   ██║
+  #██║     ██║   ██║██║   ██║██║╚██╗██║██║   ██║   ██║   ██║
+  #╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║██║   ██║   ╚██████╔╝
+  # ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝    ╚═════╝ 
+
   CognitoIdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
       AllowUnauthenticatedIdentities: True
-
-
-
-  # ██████╗ ██████╗  ██████╗ ███╗   ██╗██╗████████╗██╗ ██████╗ 
-  #██╔════╝██╔═══██╗██╔════╝ ████╗  ██║██║╚══██╔══╝██║██╔═══██╗
-  #██║     ██║   ██║██║  ███╗██╔██╗ ██║██║   ██║   ██║██║   ██║
-  #██║     ██║   ██║██║   ██║██║╚██╗██║██║   ██║   ██║██║   ██║
-  #╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║██║   ██║   ██║╚██████╔╝
-  # ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝ ╚═════╝ 
                                                             
   IdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
