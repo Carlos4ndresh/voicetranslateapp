@@ -147,12 +147,6 @@ Resources:
   #███████║██████╔╝    ██████╔╝╚██████╔╝╚██████╗██║  ██╗███████╗   ██║   ███████║
   #╚══════╝╚═════╝     ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝
 
-  VoiceTranslatorLambdaBucket:                                                       
-    Type: AWS::S3::Bucket
-    Properties: 
-      AccessControl: Private
-      BucketName: voice-translator-lambda2
-
   VoiceTranslatorBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -198,9 +192,6 @@ Resources:
       Runtime: "java8"
       MemorySize: 1024
       Timeout: 30
-    DependsOn:
-      - VoiceTranslatorCodeBuild
-      - CfDistribution
 
   
   # ██████╗██╗      ██████╗ ██╗   ██╗██████╗     ███████╗██████╗  ██████╗ ███╗   ██╗████████╗
@@ -741,8 +732,8 @@ Resources:
         Subnets: 
           - !Ref VoiceTranslatorSubnetPriv
         VpcId: !Ref VoiceTranslatorVPC
-    #DependsOn: 
-      #- VoiceTranslatorLambda
+    DependsOn: 
+      - VoiceTranslatorLambda
       #- CfDistribution
 
 
